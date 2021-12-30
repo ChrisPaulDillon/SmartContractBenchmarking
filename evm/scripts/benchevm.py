@@ -21,7 +21,7 @@ INPUT_VECTORS_DIR = "/input_data/input_vectors"
 
 PARITY_EVM_DIR = "/parity/target/release"
 
-GETH_EVM_DIR = "/root/go/src/github.com/ethereum/go-ethereum/core/vm/runtime"
+GETH_EVM_DIR = "/go-ethereum/core/vm/runtime"
 
 
 def save_results(evm_name, evm_benchmarks):
