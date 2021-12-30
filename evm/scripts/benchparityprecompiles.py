@@ -2,6 +2,7 @@
 
 import re
 import subprocess
+from util import RESULT_CSV_OUTPUT_PATH
 import nanodurationpy as durationpy
 import csv
 import time
@@ -11,14 +12,12 @@ import shutil
 import shlex
 
 # output paths should be mounted docker volumes
-RESULT_CSV_OUTPUT_PATH = "/evmraceresults"
 
 RESULT_CSV_FILENAME = "parity_precompile_benchmarks.csv"
 
 PARITY_DIR = "/parity"
 
 PARITY_PRECOMPILE_BENCH_CMD = "cargo bench --package ethcore --color never"
-
 
 
 """
@@ -57,6 +56,7 @@ Found 3 outliers among 100 measurements (3.00%)
   1 (1.00%) high severe
 """
 
+
 def parse_parity_bench_output(stdoutlines):
     nameRegex = "Benchmarking (\w+): Warming up for"
     timeRegex = "time:\s+\[[\d\.]+\s+\w+\s+([\d\.]+\s+\w+)"
@@ -75,11 +75,13 @@ def parse_parity_bench_output(stdoutlines):
         matchTime = re.search(timeRegex, line)
         if matchTime:
             bench_time = matchTime.group(1)
-            bench_time = bench_time.replace(" ", "") # "1.2129 ms" -> "1.2129ms"
+            bench_time = bench_time.replace(
+                " ", "")  # "1.2129 ms" -> "1.2129ms"
 
         if bench_time is not None and test_name != "":
             bench_time = durationpy.from_str(bench_time)
-            bench_tests.append({'name': test_name, 'gas': 0, 'time': bench_time.total_seconds()})
+            bench_tests.append(
+                {'name': test_name, 'gas': 0, 'time': bench_time.total_seconds()})
             print("parsed test result:", bench_tests[-1])
             bench_time = 0
             test_name = ""
@@ -91,11 +93,12 @@ def do_parity_precompile_bench():
     # TODO: running `cargo bench` for the first time generates a lot of compiler output.
     # should we do anything to handle that?
     parity_cmd = shlex.split(PARITY_PRECOMPILE_BENCH_CMD)
-    print("running parity precompile benchmarks...\n{}".format(PARITY_PRECOMPILE_BENCH_CMD))
+    print("running parity precompile benchmarks...\n{}".format(
+        PARITY_PRECOMPILE_BENCH_CMD))
 
     raw_stdoutlines = []
     with subprocess.Popen(parity_cmd, cwd=PARITY_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True) as p:
-        for line in p.stdout: # b'\n'-separated lines
+        for line in p.stdout:  # b'\n'-separated lines
             print(line, end='')
             raw_stdoutlines.append(line)  # pass bytes as is
         p.wait()
@@ -115,14 +118,16 @@ def saveResults(precompile_benchmarks):
         dest_backup_path = os.path.join(RESULT_CSV_OUTPUT_PATH, ts_folder_name)
         os.makedirs(dest_backup_path)
         shutil.move(result_file, dest_backup_path)
-        print("existing {} moved to {}".format(RESULT_CSV_FILENAME, dest_backup_path))
+        print("existing {} moved to {}".format(
+            RESULT_CSV_FILENAME, dest_backup_path))
 
     with open(result_file, 'w', newline='') as bench_result_file:
         fieldnames = ['test_name', 'gas', 'time']
         writer = csv.DictWriter(bench_result_file, fieldnames=fieldnames)
         writer.writeheader()
         for test_result in precompile_benchmarks:
-            writer.writerow({"test_name" : test_result['name'], "gas" : test_result['gas'], "time" : test_result['time']})
+            writer.writerow(
+                {"test_name": test_result['name'], "gas": test_result['gas'], "time": test_result['time']})
 
 
 def main():
@@ -130,7 +135,7 @@ def main():
     bench_results = parse_parity_bench_output(bench_output)
     print("got parity precompile benchmarks:", bench_results)
 
-    ## TODO: bench parity precompiles
+    # TODO: bench parity precompiles
 
     saveResults(bench_results)
 

@@ -32,7 +32,7 @@ Run EVM benchmarks:
 (cd evm/ && ./scripts/run_bench.sh)
 ```
 
-The previous command will create a new directory `evmraceresults` and `benchmark_results_data`, containing the following files:
+The previous command will create a new directory `benchmark_results` and `benchmark_results_data`, containing the following files:
 
 - _evm_benchmarks.csv_ - consolidated benchmarks
 - _evm_benchmarks_parity.csv_ - parity benchmarks

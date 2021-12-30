@@ -1,4 +1,4 @@
-RESULT_CSV_OUTPUT_PATH = "/evmraceresults"
+RESULT_CSV_OUTPUT_PATH = "/benchmark_results"
 
 # must be an absolute path to evm code dir
 EVM_CODE_DIR = "/input_data/evmcode"

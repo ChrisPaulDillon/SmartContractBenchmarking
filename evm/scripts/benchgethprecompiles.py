@@ -11,7 +11,7 @@ import shutil
 import shlex
 
 # output paths should be mounted docker volumes
-RESULT_CSV_OUTPUT_PATH = "/evmraceresults"
+from evm.util.routes import RESULT_CSV_OUTPUT_PATH
 
 RESULT_CSV_FILENAME = "geth_precompile_benchmarks.csv"
 
@@ -85,13 +85,14 @@ PASS
 ok  	github.com/ethereum/go-ethereum/core/vm	510.099s
 """
 
+
 def do_go_precompile_bench():
     go_cmd = shlex.split(GO_PRECOMPILE_BENCH_CMD)
     print("running go precompile benchmarks...\n{}".format(GO_PRECOMPILE_BENCH_CMD))
 
     raw_stdoutlines = []
     with subprocess.Popen(go_cmd, cwd=GO_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True) as p:
-        for line in p.stdout: # b'\n'-separated lines
+        for line in p.stdout:  # b'\n'-separated lines
             print(line, end='')
             raw_stdoutlines.append(line)  # pass bytes as is
         p.wait()
@@ -102,17 +103,21 @@ def do_go_precompile_bench():
     return raw_stdoutlines
 
 # parsing code from https://github.com/ethereum/benchmarking/blob/master/constantinople/scripts/postprocess_geth_v2.py
+
+
 def parse_go_bench_output(stdoutlines):
     benchRegex = "Benchmark(Precompiled.*)-Gas=([\d]+)\S+\s+\d+\s+([\d\.]+) ns\/op"
-    #opRegexp = re.compile("Benchmark(Op.*)\S+\s+\d+\s+([\d\.]+) ns\/op") 
+    #opRegexp = re.compile("Benchmark(Op.*)\S+\s+\d+\s+([\d\.]+) ns\/op")
 
     bench_tests = []
     for line in stdoutlines:
         match = re.search(benchRegex, line)
         if match:
-            (name, gas, nanosecs) = (match.group(1), match.group(2), match.group(3))
+            (name, gas, nanosecs) = (match.group(
+                1), match.group(2), match.group(3))
             bench_time = durationpy.from_str("{}ns".format(nanosecs))
-            bench_tests.append({'name': name, 'gas': gas, 'time': bench_time.total_seconds()})
+            bench_tests.append(
+                {'name': name, 'gas': gas, 'time': bench_time.total_seconds()})
 
     return bench_tests
 
@@ -129,14 +134,16 @@ def saveResults(precompile_benchmarks):
     if os.path.isfile(result_file):
         os.makedirs(dest_backup_path)
         shutil.move(result_file, dest_backup_path)
-        print("existing {} moved to {}".format(RESULT_CSV_FILENAME, dest_backup_path))
+        print("existing {} moved to {}".format(
+            RESULT_CSV_FILENAME, dest_backup_path))
 
     with open(result_file, 'w', newline='') as bench_result_file:
         fieldnames = ['test_name', 'gas', 'time']
         writer = csv.DictWriter(bench_result_file, fieldnames=fieldnames)
         writer.writeheader()
         for test_result in precompile_benchmarks:
-            writer.writerow({"test_name" : test_result['name'], "gas" : test_result['gas'], "time" : test_result['time']})
+            writer.writerow(
+                {"test_name": test_result['name'], "gas": test_result['gas'], "time": test_result['time']})
 
 
 def main():
