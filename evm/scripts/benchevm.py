@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-import json, re
+import json
+import re
 import subprocess
 import nanodurationpy as durationpy
 import csv
@@ -11,28 +12,19 @@ import sys
 import shutil
 import shlex
 
-
-RESULT_CSV_OUTPUT_PATH = "/evmraceresults"
-
-# must be an absolute path to evm code dir
-EVM_CODE_DIR = "/input_data/evmcode"
-
-INPUT_VECTORS_DIR = "/input_data/input_vectors"
-
-PARITY_EVM_DIR = "/parity/target/release"
-
-GETH_EVM_DIR = "/go-ethereum/core/vm/runtime"
+from util import EVM_CODE_DIR, GETH_EVM_DIR, INPUT_VECTORS_DIR, PARITY_EVM_DIR, RESULT_CSV_OUTPUT_PATH
 
 
 def save_results(evm_name, evm_benchmarks):
-    result_file = os.path.join(RESULT_CSV_OUTPUT_PATH, "evm_benchmarks_{}.csv".format(evm_name))
+    result_file = os.path.join(
+        RESULT_CSV_OUTPUT_PATH, "evm_benchmarks_{}.csv".format(evm_name))
 
     # move existing files to old-datetime-folder
     ts = time.time()
     date_str = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
     ts_folder_name = "{}-{}".format(date_str, round(ts))
     dest_backup_path = os.path.join(RESULT_CSV_OUTPUT_PATH, ts_folder_name)
-    #for file in glob.glob(r"{}/*.csv".format(RESULT_CSV_OUTPUT_PATH)):
+    # for file in glob.glob(r"{}/*.csv".format(RESULT_CSV_OUTPUT_PATH)):
     if os.path.isfile(result_file):
         os.makedirs(dest_backup_path)
         print("backing up existing {}".format(result_file))
@@ -56,20 +48,25 @@ def save_results(evm_name, evm_benchmarks):
         for row in evm_benchmarks:
             writer.writerow(row)
 
+
 def get_parity_cmd(codefile, calldata, expected):
-    cmd_str = "./parity-evm --code-file {} --input {} --expected {} ".format(codefile, calldata, expected)
+    cmd_str = "./parity-evm --code-file {} --input {} --expected {} ".format(
+        codefile, calldata, expected)
     return cmd_str
 
+
 def get_geth_cmd(codefile, calldata, expected):
-    cmd_str = "/go-ethereum/build/bin/evm --codefile {} --statdump --input {} --bench run".format(codefile, calldata)
+    cmd_str = "/go-ethereum/build/bin/evm --codefile {} --statdump --input {} --bench run".format(
+        codefile, calldata)
     return cmd_str
+
 
 def do_parity_bench(parity_cmd):
     print("running parity-evm benchmark...\n{}\n".format(parity_cmd))
     parity_cmd = shlex.split(parity_cmd)
     stdoutlines = []
     with subprocess.Popen(parity_cmd, cwd=PARITY_EVM_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True) as p:
-        for line in p.stdout: # b'\n'-separated lines
+        for line in p.stdout:  # b'\n'-separated lines
             print(line, end='')
             stdoutlines.append(line)  # pass bytes as is
         p.wait()
@@ -85,12 +82,13 @@ def do_parity_bench(parity_cmd):
     gasused = gas_match.group(1)
     return {'gas_used': gasused, 'time': time.total_seconds()}
 
+
 def do_geth_bench(geth_cmd):
     print("running geth-evm benchmark...\n{}\n".format(geth_cmd))
     geth_cmd = shlex.split(geth_cmd)
     stdoutlines = []
     with subprocess.Popen(geth_cmd, cwd=GETH_EVM_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1) as p:
-        for line in p.stdout: # b'\n'-separated lines
+        for line in p.stdout:  # b'\n'-separated lines
             print(line.decode(), end='')
             stdoutlines.append(line.decode())  # pass bytes as is
         p.wait()
@@ -110,6 +108,7 @@ def do_geth_bench(geth_cmd):
     gas_match = re.search(gasregex, gas_line)
     gasused = gas_match.group(1)
     return {'gas_used': gasused, 'time': time.total_seconds()}
+
 
 def bench_evm(evm_name, input, codefilepath, shift_suffix):
     calldata = input['input']
@@ -140,7 +139,8 @@ def bench_evm(evm_name, input, codefilepath, shift_suffix):
 
 
 def main(evm_name):
-    evmcodefiles = [fname for fname in os.listdir(EVM_CODE_DIR) if fname.endswith('.hex')]
+    evmcodefiles = [fname for fname in os.listdir(
+        EVM_CODE_DIR) if fname.endswith('.hex')]
     evm_benchmarks = []
     for codefile in evmcodefiles:
         print('start benching: ', codefile)
@@ -158,14 +158,16 @@ def main(evm_name):
             for input in bench_inputs:
                 print("bench input: ", input['name'])
 
-                evm_result = bench_evm(evm_name, input, codefilepath, shift_suffix)
+                evm_result = bench_evm(
+                    evm_name, input, codefilepath, shift_suffix)
                 evm_benchmarks.append(evm_result)
-
 
     save_results(evm_name, evm_benchmarks)
 
+
 def usage():
     print("newbench.py <evm_name>")
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
