@@ -2,7 +2,7 @@
 
 import re
 import subprocess
-from util import RESULT_CSV_OUTPUT_PATH
+from routes import RESULT_CSV_OUTPUT_PATH
 import nanodurationpy as durationpy
 import csv
 import time

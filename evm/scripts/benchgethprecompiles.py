@@ -11,7 +11,7 @@ import shutil
 import shlex
 
 # output paths should be mounted docker volumes
-from evm.util.routes import RESULT_CSV_OUTPUT_PATH
+from routes import RESULT_CSV_OUTPUT_PATH
 
 RESULT_CSV_FILENAME = "geth_precompile_benchmarks.csv"
 

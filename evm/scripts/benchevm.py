@@ -11,8 +11,7 @@ import os
 import sys
 import shutil
 import shlex
-
-from util import EVM_CODE_DIR, GETH_EVM_DIR, INPUT_VECTORS_DIR, PARITY_EVM_DIR, RESULT_CSV_OUTPUT_PATH
+from routes import EVM_CODE_DIR, GETH_EVM_DIR, INPUT_VECTORS_DIR, PARITY_EVM_DIR, RESULT_CSV_OUTPUT_PATH
 
 
 def save_results(evm_name, evm_benchmarks):
