@@ -1,2 +1,2 @@
 engine,test_name,total_time,gas_used
-geth-evm,add,2e-06,9
+geth-evm,add,1e-06,10000000000
