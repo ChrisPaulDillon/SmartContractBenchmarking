@@ -9,6 +9,7 @@ docker run --env PYTHONIOENCODING=UTF-8 -v C:/Users/Chris/Desktop/SmartContractB
 # Run Geth benchmarks
 docker run --env PYTHONIOENCODING=UTF-8 -v C:/Users/Chris/Desktop/SmartContractBenchmarking/benchmark_results:/benchmark_results -v C:/Users/Chris/Desktop/SmartContractBenchmarking/evm/scripts:/scripts -v C:/Users/Chris/Desktop/SmartContractBenchmarking/evm/input_data:/input_data -it geth-bench  /usr/bin/python3 /scripts/benchevm.py geth
 
+docker run --env PYTHONIOENCODING=UTF-8 -v C:/Users/Chris/Desktop/SmartContractBenchmarking/benchmark_results:/benchmark_results -v C:/Users/Chris/Desktop/SmartContractBenchmarking/evm/scripts:/scripts -v C:/Users/Chris/Desktop/SmartContractBenchmarking/evm/input_data:/input_data -it runtimeverificationinc/kframework-evm-semantics:ubuntu-focal-9c15489
 if [ "$1" == 'geth' ] || [ "$1" == 'parity' ]
 then
     docker run -v $(pwd)/benchmark_results:/benchmark_results -v $(pwd)/scripts:/scripts -it $1-bench /usr/bin/python3 /scripts/bench$1precompiles.py
