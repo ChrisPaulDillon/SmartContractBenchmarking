@@ -22,7 +22,7 @@ def save_results(evm_name, evm_benchmarks):
     ts = time.time()
     date_str = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
     ts_folder_name = "{}-{}".format(date_str, round(ts))
-    dest_backup_path = os.path.join(RESULT_CSV_OUTPUT_PATH, ts_folder_name)
+    dest_backup_path = os.path.join(RESULT_CSV_OUTPUT_PATH, evm_name, ts_folder_name)
     # for file in glob.glob(r"{}/*.csv".format(RESULT_CSV_OUTPUT_PATH)):
     if os.path.isfile(result_file):
         os.makedirs(dest_backup_path)
