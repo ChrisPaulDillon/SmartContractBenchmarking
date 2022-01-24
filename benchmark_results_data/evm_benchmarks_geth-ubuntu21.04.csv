@@ -1,0 +1,9 @@
+engine,test_name,total_time,gas_used
+geth-ubuntu21.04,blake2b-2805-bytes,0.0130245,3526514
+geth-ubuntu21.04,blake2b_huff-2805-bytes,0.0015981000000000003,293755
+geth-ubuntu21.04,blake2b-2805-bytes,0.0113143,3423526
+geth-ubuntu21.04,bn128_mul_weierstrudel-cdetrio12,0.0003414,47165
+geth-ubuntu21.04,bn256g2mul-0xAshish,0.0021239,455757
+geth-ubuntu21.04,mul256-gcolvin-drag-race,0.013766599999999999,5610277
+geth-ubuntu21.04,sha1-42488-bits,0.0107941,3014404
+geth-ubuntu21.04,sha1-42488-bits,0.009246899999999999,2898473

@@ -18,18 +18,9 @@ def save_results(evm_name, evm_benchmarks):
     result_file = os.path.join(
         RESULT_CSV_OUTPUT_PATH, "evm_benchmarks_{}.csv".format(evm_name))
 
-    # move existing files to old-datetime-folder
     evm_client = evm_name.split('-')[0]
     os_version =  evm_name.split('-')[1]
     os.path.join(RESULT_CSV_OUTPUT_PATH, evm_client, os_version)
-    
-    # os.makedirs(dest_backup_path)
-    # print("backing up existing {}".format(result_file))
-    # shutil.move(result_file, dest_backup_path)
-    # print("existing csv files backed up to {}".format(dest_backup_path))
-
-    # will always be a new file after this.
-    # might move this backup routine to a bash script
 
     fieldnames = ['engine', 'test_name', 'total_time', 'gas_used']
 
@@ -59,7 +50,7 @@ def get_geth_cmd(codefile, calldata, expected):
 
 
 def do_parity_bench(parity_cmd):
-    print("running parity-evm benchmark...\n{}\n".format(parity_cmd))
+    #print("running parity-evm benchmark...\n{}\n".format(parity_cmd))
     parity_cmd = shlex.split(parity_cmd)
     stdoutlines = []
     with subprocess.Popen(parity_cmd, cwd=PARITY_EVM_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True) as p:
@@ -81,7 +72,7 @@ def do_parity_bench(parity_cmd):
 
 
 def do_geth_bench(geth_cmd):
-    print("running geth-evm benchmark...\n{}\n".format(geth_cmd))
+    #print("running geth-evm benchmark...\n{}\n".format(geth_cmd))
     geth_cmd = shlex.split(geth_cmd)
     stdoutlines = []
     with subprocess.Popen(geth_cmd, cwd=GETH_EVM_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1) as p:
@@ -136,10 +127,36 @@ def bench_evm(evm_name, input, codefilepath, shift_suffix):
 
     return evm_result
 
+def bench_hex_code(inputs_file_path, codefilepath, shift_suffix):
+    BENCH_REPEAT_NO = 10
+    with open(inputs_file_path) as f:
+        bench_inputs = json.load(f)
+    for input in bench_inputs:
+        print("bench input: ", input['name'])
+        i = 0
+        cur_bench_results = []
+        while i < BENCH_REPEAT_NO:
+            evm_result = bench_evm(
+                evm_name, input, codefilepath, shift_suffix)
+            cur_bench_results.append(evm_result)
+            i = i + 1
+
+        # Find avg wall time for each benchmark
+        total_time = 0
+        for result in cur_bench_results:
+            total_time = result['total_time'] + total_time
+
+        avgTimeResult = total_time / BENCH_REPEAT_NO
+        print('average time: {}'.format(avgTimeResult))
+        avgResult = {'engine': evm_name, 'test_name': input['name'], 'total_time': avgTimeResult, 'gas_used': result['gas_used']}
+
+    return avgResult
 
 def main(evm_name):
     evmcodefiles = [fname for fname in os.listdir(
         EVM_CODE_DIR) if fname.endswith('.hex')]
+
+
     evm_benchmarks = []
     for codefile in evmcodefiles:
         print('start benching: ', codefile)
@@ -152,14 +169,9 @@ def main(evm_name):
             shift_suffix = "-shiftopt"
         file_name = "{}-inputs.json".format(inputsfilename)
         inputs_file_path = os.path.join(INPUT_VECTORS_DIR, file_name)
-        with open(inputs_file_path) as f:
-            bench_inputs = json.load(f)
-            for input in bench_inputs:
-                print("bench input: ", input['name'])
+        evm_result = bench_hex_code(inputs_file_path, codefilepath, shift_suffix)
 
-                evm_result = bench_evm(
-                    evm_name, input, codefilepath, shift_suffix)
-                evm_benchmarks.append(evm_result)
+        evm_benchmarks.append(evm_result)
 
     save_results(evm_name, evm_benchmarks)
 
