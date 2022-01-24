@@ -33,7 +33,7 @@ RUN cd go-ethereum && git pull origin master && make all
 # RUN ln go-ethereum /go-ethereum
 
 WORKDIR /
-RUN mkdir -p /benchmark_results
+RUN mkdir -p /benchmark_results_data
 RUN mkdir /evmrace
 
 CMD /bin/bash

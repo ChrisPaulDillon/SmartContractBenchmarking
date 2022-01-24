@@ -1,4 +1,4 @@
-RESULT_CSV_OUTPUT_PATH = "/benchmark_results"
+RESULT_CSV_OUTPUT_PATH = "/benchmark_results_data"
 EVM_CODE_DIR = "/input_data/evmcode"
 KEVM_CODE_DIR = "/bin/legacytests/Constantinople/VMTests/vmArithmeticTest"
 

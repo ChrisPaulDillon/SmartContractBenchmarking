@@ -35,7 +35,7 @@ RUN cd bin && git clone https://github.com/ethereum/legacytests
 # && git submodule update --init --recursive -- deps/k && make k-deps
 
 WORKDIR /
-RUN mkdir -p /benchmark_results
+RUN mkdir -p /benchmark_results_data
 RUN mkdir /evmrace
 RUN mkdir /scripts
 
