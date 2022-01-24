@@ -19,16 +19,14 @@ def save_results(evm_name, evm_benchmarks):
         RESULT_CSV_OUTPUT_PATH, "evm_benchmarks_{}.csv".format(evm_name))
 
     # move existing files to old-datetime-folder
-    ts = time.time()
-    date_str = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
-    ts_folder_name = "{}-{}".format(date_str, round(ts))
-    dest_backup_path = os.path.join(RESULT_CSV_OUTPUT_PATH, evm_name, ts_folder_name)
-    # for file in glob.glob(r"{}/*.csv".format(RESULT_CSV_OUTPUT_PATH)):
-    if os.path.isfile(result_file):
-        os.makedirs(dest_backup_path)
-        print("backing up existing {}".format(result_file))
-        shutil.move(result_file, dest_backup_path)
-        print("existing csv files backed up to {}".format(dest_backup_path))
+    evm_client = evm_name.split('-')[0]
+    os_version =  evm_name.split('-')[1]
+    os.path.join(RESULT_CSV_OUTPUT_PATH, evm_client, os_version)
+    
+    # os.makedirs(dest_backup_path)
+    # print("backing up existing {}".format(result_file))
+    # shutil.move(result_file, dest_backup_path)
+    # print("existing csv files backed up to {}".format(dest_backup_path))
 
     # will always be a new file after this.
     # might move this backup routine to a bash script
@@ -116,7 +114,9 @@ def bench_evm(evm_name, input, codefilepath, shift_suffix):
 
     evm_result = {}
 
-    if evm_name == "parity":
+    evm_type =  evm_name.split('-')[0]
+
+    if evm_type == "parity":
         parity_bench_cmd = get_parity_cmd(codefilepath, calldata, expected)
         parity_bench_result = do_parity_bench(parity_bench_cmd)
 
@@ -125,7 +125,7 @@ def bench_evm(evm_name, input, codefilepath, shift_suffix):
         evm_result['total_time'] = parity_bench_result['time']
         evm_result['gas_used'] = parity_bench_result['gas_used']
 
-    if evm_name == "geth":
+    if evm_type == "geth":
         geth_bench_cmd = get_geth_cmd(codefilepath, calldata, expected)
         geth_bench_result = do_geth_bench(geth_bench_cmd)
 
