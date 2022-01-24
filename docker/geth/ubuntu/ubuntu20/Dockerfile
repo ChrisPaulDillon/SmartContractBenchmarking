@@ -1,5 +1,7 @@
 FROM ubuntu:20.04
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 # https://github.com/kuralabs/docker-python3-dev/blob/master/Dockerfile
 
 # System deps

@@ -8,6 +8,7 @@ docker run --env PYTHONIOENCODING=UTF-8 -v C:/Users/Chris/Desktop/SmartContractB
 
 # Run Geth benchmarks
 docker run --env PYTHONIOENCODING=UTF-8 -v C:/Users/Chris/Desktop/SmartContractBenchmarking/benchmark_results:/benchmark_results -v C:/Users/Chris/Desktop/SmartContractBenchmarking/evm/scripts:/scripts -v C:/Users/Chris/Desktop/SmartContractBenchmarking/evm/input_data:/input_data -it geth-bench  /usr/bin/python3 /scripts/benchevm.py geth
+docker run --env PYTHONIOENCODING=UTF-8 -v C:/Users/Chris/Desktop/SmartContractBenchmarking/benchmark_results:/benchmark_results -v C:/Users/Chris/Desktop/SmartContractBenchmarking/evm/scripts:/scripts -v C:/Users/Chris/Desktop/SmartContractBenchmarking/evm/input_data:/input_data -it geth-ubunutu20  /usr/bin/python3 /scripts/benchevm.py geth
 
 docker run --env PYTHONIOENCODING=UTF-8 -v C:/Users/Chris/Desktop/SmartContractBenchmarking/benchmark_results:/benchmark_results -v C:/Users/Chris/Desktop/SmartContractBenchmarking/evm/scripts:/scripts -v C:/Users/Chris/Desktop/SmartContractBenchmarking/evm/input_data:/bin/input_data -it kevm-bench /usr/bin/python3 /scripts/benchevm.py kevm
 if [ "$1" == 'geth' ] || [ "$1" == 'parity' ]
