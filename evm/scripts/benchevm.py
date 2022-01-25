@@ -127,36 +127,8 @@ def bench_evm(evm_name, input, codefilepath, shift_suffix):
 
     return evm_result
 
-def bench_hex_code(inputs_file_path, codefilepath, shift_suffix):
+def bench_hex_code(evmcodefiles):
     BENCH_REPEAT_NO = 10
-    with open(inputs_file_path) as f:
-        bench_inputs = json.load(f)
-    for input in bench_inputs:
-        print("bench input: ", input['name'])
-        i = 0
-        cur_bench_results = []
-        while i < BENCH_REPEAT_NO:
-            evm_result = bench_evm(
-                evm_name, input, codefilepath, shift_suffix)
-            cur_bench_results.append(evm_result)
-            i = i + 1
-
-        # Find avg wall time for each benchmark
-        total_time = 0
-        for result in cur_bench_results:
-            total_time = result['total_time'] + total_time
-
-        avgTimeResult = total_time / BENCH_REPEAT_NO
-        print('average time: {}'.format(avgTimeResult))
-        avgResult = {'engine': evm_name, 'test_name': input['name'], 'total_time': avgTimeResult, 'gas_used': result['gas_used']}
-
-    return avgResult
-
-def main(evm_name):
-    evmcodefiles = [fname for fname in os.listdir(
-        EVM_CODE_DIR) if fname.endswith('.hex')]
-
-
     evm_benchmarks = []
     for codefile in evmcodefiles:
         print('start benching: ', codefile)
@@ -169,10 +141,26 @@ def main(evm_name):
             shift_suffix = "-shiftopt"
         file_name = "{}-inputs.json".format(inputsfilename)
         inputs_file_path = os.path.join(INPUT_VECTORS_DIR, file_name)
-        evm_result = bench_hex_code(inputs_file_path, codefilepath, shift_suffix)
+        with open(inputs_file_path) as f:
+            bench_inputs = json.load(f)
+        for input in bench_inputs:
+            print("bench input: ", input['name'])
+            i = 0
+            cur_bench_results = []
+            while i < BENCH_REPEAT_NO:
+                evm_result = bench_evm(
+                    evm_name, input, codefilepath, shift_suffix)
+                cur_bench_results.append(evm_result)
+                evm_benchmarks.append(evm_result)
+                i = i + 1
 
-        evm_benchmarks.append(evm_result)
+    return evm_benchmarks
 
+def main(evm_name):
+    evmcodefiles = [fname for fname in os.listdir(
+        EVM_CODE_DIR) if fname.endswith('.hex')]
+
+    evm_benchmarks = bench_hex_code(evmcodefiles)
     save_results(evm_name, evm_benchmarks)
 
 
