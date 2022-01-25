@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from enum import Enum
 import json
 import re
 import subprocess
@@ -13,6 +14,10 @@ import shutil
 import shlex
 from routes import EVM_CODE_DIR, GETH_EVM_DIR, INPUT_VECTORS_DIR, PARITY_EVM_DIR, RESULT_CSV_OUTPUT_PATH
 
+class EVMType(Enum):
+     PARITY = "parity",
+     KEVM = "kevm",
+     GETH = "geth"
 
 def save_results(evm_name, evm_benchmarks):
     result_file = os.path.join(
@@ -107,7 +112,7 @@ def bench_evm(evm_name, input, codefilepath, shift_suffix):
 
     evm_type =  evm_name.split('-')[0]
 
-    if evm_type == "parity":
+    if evm_type == EVMType.PARITY:
         parity_bench_cmd = get_parity_cmd(codefilepath, calldata, expected)
         parity_bench_result = do_parity_bench(parity_bench_cmd)
 
@@ -116,7 +121,7 @@ def bench_evm(evm_name, input, codefilepath, shift_suffix):
         evm_result['total_time'] = parity_bench_result['time']
         evm_result['gas_used'] = parity_bench_result['gas_used']
 
-    if evm_type == "geth":
+    if evm_type == EVMType.GETH:
         geth_bench_cmd = get_geth_cmd(codefilepath, calldata, expected)
         geth_bench_result = do_geth_bench(geth_bench_cmd)
 
@@ -125,6 +130,7 @@ def bench_evm(evm_name, input, codefilepath, shift_suffix):
         evm_result['total_time'] = geth_bench_result['time']
         evm_result['gas_used'] = geth_bench_result['gas_used']
 
+    #if evm_type == EVMType.KEVM:
     return evm_result
 
 def bench_hex_code(evmcodefiles):
