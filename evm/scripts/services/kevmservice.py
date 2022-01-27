@@ -34,4 +34,4 @@ def do_kevm_bench(bench_cmd):
     #time = durationpy.from_str(time_match.group(1))
     #gas_match = re.search(gasregex, gas_line)
     #gasused = gas_match.group(1)
-    return {'gas_used': 0, 'time': 0}
+    return {'gas_used': 0, 'time': end - start}

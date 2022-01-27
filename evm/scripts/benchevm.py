@@ -2,6 +2,7 @@
 
 from enum import Enum
 import json
+import re
 from routes import KEVM_CODE_DIR
 from services.kevmservice import do_kevm_bench, get_kevm_cmd
 from services.parityservice import do_parity_bench, get_parity_cmd
@@ -72,6 +73,12 @@ def bench_evm(evm_name, input, codefilepath, shift_suffix):
         bench_cmd = get_kevm_cmd(codefilepath)
         print(bench_cmd)
         bench_result = do_kevm_bench(bench_cmd)
+        test_name = (re.search('vmArithmeticTest/(.*).json', bench_cmd)).group(1)
+        print(test_name)
+        evm_result['engine'] = "kevm-evm"
+        evm_result['test_name'] = test_name
+        evm_result['total_time'] = bench_result['time']
+        evm_result['gas_used'] = 0
 
         # evm_result['engine'] = "geth-evm"
         # evm_result['test_name'] = test_name
