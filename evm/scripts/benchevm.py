@@ -2,12 +2,14 @@
 
 from enum import Enum
 import json
+from routes import KEVM_CODE_DIR
+from services.kevmservice import do_kevm_bench, get_kevm_cmd
 from services.parityservice import do_parity_bench, get_parity_cmd
 from services.gethservice import do_geth_bench, get_geth_cmd
 import csv
 import os
 import sys
-from routes import EVM_CODE_DIR, INPUT_VECTORS_DIR, PARITY_EVM_DIR, RESULT_CSV_OUTPUT_PATH
+from routes import EVM_CODE_DIR, INPUT_VECTORS_DIR, RESULT_CSV_OUTPUT_PATH
 
 class EVMType(Enum):
      PARITY = "parity",
@@ -46,24 +48,33 @@ def bench_evm(evm_name, input, codefilepath, shift_suffix):
     evm_type =  evm_name.split('-')[0]
 
     if evm_type == EVMType.PARITY.name.lower():
-        parity_bench_cmd = get_parity_cmd(codefilepath, calldata, expected)
-        parity_bench_result = do_parity_bench(parity_bench_cmd)
+        bench_cmd = get_parity_cmd(codefilepath, calldata, expected)
+        bench_result = do_parity_bench(bench_cmd)
 
         evm_result['engine'] = 'parity-evm'
         evm_result['test_name'] = test_name
-        evm_result['total_time'] = parity_bench_result['time']
-        evm_result['gas_used'] = parity_bench_result['gas_used']
+        evm_result['total_time'] = bench_result['time']
+        evm_result['gas_used'] = bench_result['gas_used']
 
     if evm_type == EVMType.GETH.name.lower():
-        geth_bench_cmd = get_geth_cmd(codefilepath, calldata)
-        geth_bench_result = do_geth_bench(geth_bench_cmd)
+        bench_cmd = get_geth_cmd(codefilepath, calldata)
+        bench_result = do_geth_bench(bench_cmd)
 
         evm_result['engine'] = "geth-evm"
         evm_result['test_name'] = test_name
-        evm_result['total_time'] = geth_bench_result['time']
-        evm_result['gas_used'] = geth_bench_result['gas_used']
+        evm_result['total_time'] = bench_result['time']
+        evm_result['gas_used'] = bench_result['gas_used']
 
-    #if evm_type == EVMType.KEVM:
+    if evm_type == EVMType.KEVM.name.lower():
+        bench_cmd = get_kevm_cmd(codefilepath)
+        print(bench_cmd)
+        bench_result = do_kevm_bench(bench_cmd)
+
+        # evm_result['engine'] = "geth-evm"
+        # evm_result['test_name'] = test_name
+        # evm_result['total_time'] = bench_result['time']
+        # evm_result['gas_used'] = bench_result['gas_used']
+
     return evm_result
 
 def bench_hex_code(evmcodefiles):
@@ -78,7 +89,11 @@ def bench_hex_code(evmcodefiles):
         if benchname.endswith("_shift"):
             inputsfilename = benchname.replace("_shift", "")
             shift_suffix = "-shiftopt"
-        file_name = "{}-inputs.json".format(inputsfilename)
+        if "kevm" not in evm_name:
+            file_name = "{}-inputs.json".format(inputsfilename)
+        else: 
+            file_name = inputsfilename
+            
         inputs_file_path = os.path.join(INPUT_VECTORS_DIR, file_name)
         with open(inputs_file_path) as f:
             bench_inputs = json.load(f)
@@ -96,8 +111,13 @@ def bench_hex_code(evmcodefiles):
     return evm_benchmarks
 
 def main(evm_name):
-    evmcodefiles = [fname for fname in os.listdir(
-        EVM_CODE_DIR) if fname.endswith('.hex')]
+    if "kevm" not in evm_name:
+        evmcodefiles = [fname for fname in os.listdir(
+            EVM_CODE_DIR) if fname.endswith('.hex')]
+    else: 
+        #use different tests for kevm...for now
+        evmcodefiles = [fname for fname in os.listdir(
+            KEVM_CODE_DIR) if fname.endswith('.json')]
 
     evm_benchmarks = bench_hex_code(evmcodefiles)
     save_results(evm_name, evm_benchmarks)
