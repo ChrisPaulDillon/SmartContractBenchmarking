@@ -39,15 +39,15 @@ def save_results(evm_name, evm_benchmarks):
             writer.writerow(row)
 
 def bench_evm(evm_name, input, codefilepath, shift_suffix):
-    calldata = input['input']
-    expected = input['expected']
-    test_name = input['name'] + shift_suffix
 
     evm_result = {}
 
     evm_type =  evm_name.split('-')[0]
 
     if evm_type == EVMType.PARITY.name.lower():
+        calldata = input['input']
+        expected = input['expected']
+        test_name = input['name'] + shift_suffix
         bench_cmd = get_parity_cmd(codefilepath, calldata, expected)
         bench_result = do_parity_bench(bench_cmd)
 
@@ -57,6 +57,9 @@ def bench_evm(evm_name, input, codefilepath, shift_suffix):
         evm_result['gas_used'] = bench_result['gas_used']
 
     if evm_type == EVMType.GETH.name.lower():
+        calldata = input['input']
+        expected = input['expected']
+        test_name = input['name'] + shift_suffix
         bench_cmd = get_geth_cmd(codefilepath, calldata)
         bench_result = do_geth_bench(bench_cmd)
 
@@ -78,6 +81,38 @@ def bench_evm(evm_name, input, codefilepath, shift_suffix):
     return evm_result
 
 def bench_hex_code(evmcodefiles):
+    BENCH_REPEAT_NO = 1
+    evm_benchmarks = []
+    for codefile in evmcodefiles:
+        #print('start benching: ', codefile)
+        codefilepath = os.path.join(KEVM_CODE_DIR, codefile)
+        benchname = codefile.replace(".hex", "")
+        inputsfilename = benchname
+        shift_suffix = ""
+        if benchname.endswith("_shift"):
+            inputsfilename = benchname.replace("_shift", "")
+            shift_suffix = "-shiftopt"
+
+        file_name = inputsfilename 
+        inputs_file_path = os.path.join(KEVM_CODE_DIR, file_name)
+        with open(inputs_file_path) as f:
+            bench_inputs = json.load(f)
+            #print(bench_inputs)
+        for input in bench_inputs:
+            #print("bench input: ", input['name'])
+            i = 0
+            cur_bench_results = []
+            while i < BENCH_REPEAT_NO:
+                evm_result = bench_evm(
+                    evm_name, input, codefilepath, shift_suffix)
+                cur_bench_results.append(evm_result)
+                evm_benchmarks.append(evm_result)
+                i = i + 1
+
+    return evm_benchmarks
+
+
+def bench_expensive_hex_code(evmcodefiles):
     BENCH_REPEAT_NO = 10
     evm_benchmarks = []
     for codefile in evmcodefiles:
@@ -89,10 +124,8 @@ def bench_hex_code(evmcodefiles):
         if benchname.endswith("_shift"):
             inputsfilename = benchname.replace("_shift", "")
             shift_suffix = "-shiftopt"
-        if "kevm" not in evm_name:
-            file_name = "{}-inputs.json".format(inputsfilename)
-        else: 
-            file_name = inputsfilename
+
+        file_name = "{}-inputs.json".format(inputsfilename)
             
         inputs_file_path = os.path.join(INPUT_VECTORS_DIR, file_name)
         with open(inputs_file_path) as f:
@@ -114,12 +147,13 @@ def main(evm_name):
     if "kevm" not in evm_name:
         evmcodefiles = [fname for fname in os.listdir(
             EVM_CODE_DIR) if fname.endswith('.hex')]
+        evm_benchmarks = bench_expensive_hex_code(evmcodefiles)
     else: 
         #use different tests for kevm...for now
         evmcodefiles = [fname for fname in os.listdir(
             KEVM_CODE_DIR) if fname.endswith('.json')]
+        evm_benchmarks = bench_hex_code(evmcodefiles)
 
-    evm_benchmarks = bench_hex_code(evmcodefiles)
     save_results(evm_name, evm_benchmarks)
 
 
