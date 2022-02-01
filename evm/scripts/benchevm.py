@@ -30,10 +30,12 @@ def save_results(evm_name, evm_benchmarks):
     fieldnames = ['engine', 'test_name', 'total_time', 'gas_used']
 
     # write header if new file
-    if not os.path.isfile(result_file):
-        with open(result_file, 'w', newline='') as bench_result_file:
-            writer = csv.DictWriter(bench_result_file, fieldnames=fieldnames)
-            writer.writeheader()
+    if os.path.isfile(result_file):
+        os.remove(result_file)
+    
+    with open(result_file, 'w', newline='') as bench_result_file:
+        writer = csv.DictWriter(bench_result_file, fieldnames=fieldnames)
+        writer.writeheader()
 
     # append to existing file
     with open(result_file, 'a', newline='') as bench_result_file:
