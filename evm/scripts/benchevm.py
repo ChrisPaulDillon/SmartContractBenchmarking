@@ -70,16 +70,11 @@ def bench_evm(evm_name, benchname, input, codefilepath):
     if evm_type == EVMType.KEVM.name.lower():
         bench_cmd = get_kevm_cmd(codefilepath)
         bench_result = do_kevm_bench(bench_cmd)
-        test_name = (re.search('vmArithmeticTest/(.*).json', bench_cmd)).group(1)
+        test_name = (re.search('newevmcode/(.*).json', bench_cmd)).group(1)
         evm_result['engine'] = "kevm-evm"
         evm_result['test_name'] = test_name
         evm_result['total_time'] = bench_result['time']
         evm_result['gas_used'] = 0
-
-        # evm_result['engine'] = "geth-evm"
-        # evm_result['test_name'] = test_name
-        # evm_result['total_time'] = bench_result['time']
-        # evm_result['gas_used'] = bench_result['gas_used']
 
     return evm_result
 
