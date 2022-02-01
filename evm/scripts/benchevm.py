@@ -4,6 +4,7 @@ from enum import Enum
 from fileinput import filename
 import json
 import re
+import time
 from routes import KEVM_CODE_DIR
 from services.kevmservice import do_kevm_bench, get_kevm_cmd
 from services.parityservice import do_parity_bench, get_parity_cmd
@@ -99,6 +100,7 @@ def bench_hex_code(evmcodefiles):
                 cur_bench_results.append(evm_result)
                 evm_benchmarks.append(evm_result)
                 i = i + 1
+            time.sleep(1)
 
     return evm_benchmarks
 
