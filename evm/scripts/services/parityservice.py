@@ -6,6 +6,7 @@ from routes import PARITY_EVM_DIR
 import nanodurationpy as durationpy
 
 def get_parity_cmd(codefile, calldata, expected):
+    print("code file : ", codefile)
     cmd_str = "./parity-evm --code-file {} --input {} --expected {} ".format(
         codefile, calldata, expected)
     return cmd_str
