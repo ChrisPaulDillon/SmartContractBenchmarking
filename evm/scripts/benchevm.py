@@ -82,7 +82,7 @@ def bench_evm(evm_name, benchname, input, codefilepath):
     return evm_result
 
 def bench_hex_code(evmcodefiles):
-    BENCH_REPEAT_NO = 1
+    BENCH_REPEAT_NO = 1000
     evm_benchmarks = []
     
     for codefile in evmcodefiles:
