@@ -18,7 +18,10 @@ def do_geth_bench(geth_cmd):
     #print("running geth-evm benchmark...\n{}\n".format(geth_cmd))
     geth_cmd = shlex.split(geth_cmd)
     start = time.time()
-    subprocess.Popen(geth_cmd, cwd=GETH_EVM_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
+    proc1 = subprocess.Popen(geth_cmd, cwd=GETH_EVM_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
     end = time.time()
     print(end - start)
+    
+    proc1.kill()
+
     return {'gas_used': 0, 'time': end - start}

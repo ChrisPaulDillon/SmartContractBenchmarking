@@ -72,6 +72,7 @@ def bench_evm(evm_name, benchname, input, codefilepath):
 
     if evm_type == EVMType.KEVM.name.lower():
         bench_cmd = get_kevm_cmd(codefilepath)
+        print(bench_cmd)
         bench_result = do_kevm_bench(bench_cmd)
         test_name = (re.search('newevmcode/(.*).json', bench_cmd)).group(1)
         evm_result['engine'] = "kevm-evm"
@@ -103,6 +104,7 @@ def bench_hex_code(evmcodefiles):
                 evm_benchmarks.append(evm_result)
                 i = i + 1
             time.sleep(1)
+            
 
     return evm_benchmarks
 
